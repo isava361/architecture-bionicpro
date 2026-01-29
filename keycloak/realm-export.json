@@ -20,6 +20,7 @@
     },
     "users": [
       {
+        "id": "00000000-0000-0000-0000-000000000001",
         "username": "user1",
         "enabled": true,
         "email": "user1@example.com",
@@ -35,6 +36,7 @@
         "realmRoles": ["user"]
       },
       {
+        "id": "00000000-0000-0000-0000-000000000002",
         "username": "user2",
         "enabled": true,
         "email": "user2@example.com",
@@ -50,6 +52,7 @@
         "realmRoles": ["user"]
       },
       {
+        "id": "00000000-0000-0000-0000-000000000003",
         "username": "admin1",
         "enabled": true,
         "email": "admin1@example.com",
@@ -65,6 +68,7 @@
         "realmRoles": ["administrator"]
       },
       {
+        "id": "00000000-0000-0000-0000-000000000004",
         "username": "prothetic1",
         "enabled": true,
         "email": "prothetic1@example.com",
@@ -80,6 +84,7 @@
         "realmRoles": ["prothetic_user"]
       },
       {
+        "id": "00000000-0000-0000-0000-000000000005",
         "username": "prothetic2",
         "enabled": true,
         "email": "prothetic2@example.com",
@@ -95,6 +100,7 @@
         "realmRoles": ["prothetic_user"]
       },
       {
+        "id": "00000000-0000-0000-0000-000000000006",
         "username": "prothetic3",
         "enabled": true,
         "email": "prothetic3@example.com",
