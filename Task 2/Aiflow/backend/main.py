@@ -163,7 +163,7 @@ async def get_report(
     user: dict[str, Any] = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, Any]:
-    user_id = user["sub"]
+    user_id = user["preferred_username"]
     client = get_clickhouse_client(settings)
     max_row = client.execute(
         "SELECT max(last_seen_at) FROM reports.report_mart",
@@ -185,8 +185,13 @@ async def get_report(
             customer_email,
             device_type,
             total_events,
-            avg_temperature,
-            avg_pressure,
+            avg_response_time_ms,
+            max_response_time_ms,
+            avg_signal_strength,
+            avg_noise_level,
+            avg_battery_level,
+            min_battery_level,
+            total_gestures,
             last_seen_at
         FROM reports.report_mart
         WHERE user_id = %(user_id)s
@@ -205,9 +210,14 @@ async def get_report(
             "customer_email": row[3],
             "device_type": row[4],
             "total_events": row[5],
-            "avg_temperature": row[6],
-            "avg_pressure": row[7],
-            "last_seen_at": row[8].isoformat() if row[8] else None,
+            "avg_response_time_ms": round(row[6], 2),
+            "max_response_time_ms": round(row[7], 2),
+            "avg_signal_strength": round(row[8], 4),
+            "avg_noise_level": round(row[9], 4),
+            "avg_battery_level": round(row[10], 1),
+            "min_battery_level": round(row[11], 1),
+            "total_gestures": row[12],
+            "last_seen_at": row[13].isoformat() if row[13] else None,
         }
         for row in rows
     ]
@@ -218,3 +228,4 @@ async def get_report(
         "end": end_dt.isoformat(),
         "report": report,
     }
+
