@@ -54,7 +54,9 @@ services:
       - ./postgres-telemetry-data:/var/lib/postgresql/data
 
   airflow:
-    image: apache/airflow:2.9.2
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
