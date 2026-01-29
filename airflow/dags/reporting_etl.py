@@ -64,8 +64,11 @@ def create_tables() -> None:
             event_id String,
             prosthesis_id String,
             event_time DateTime,
-            temperature Float64,
-            pressure Float64
+            response_time_ms Float64,
+            signal_strength Float64,
+            noise_level Float64,
+            battery_level Float64,
+            gestures_count UInt32
         )
         ENGINE = MergeTree
         ORDER BY (prosthesis_id, event_time)
@@ -82,8 +85,13 @@ def create_tables() -> None:
             customer_email String,
             device_type String,
             total_events UInt64,
-            avg_temperature Float64,
-            avg_pressure Float64,
+            avg_response_time_ms Float64,
+            max_response_time_ms Float64,
+            avg_signal_strength Float64,
+            avg_noise_level Float64,
+            avg_battery_level Float64,
+            min_battery_level Float64,
+            total_gestures UInt64,
             last_seen_at DateTime
         )
         ENGINE = MergeTree
@@ -181,8 +189,11 @@ def seed_telemetry_data() -> None:
             id UUID PRIMARY KEY,
             prosthesis_id UUID NOT NULL,
             event_time TIMESTAMP NOT NULL,
-            temperature DOUBLE PRECISION NOT NULL,
-            pressure DOUBLE PRECISION NOT NULL
+            response_time_ms DOUBLE PRECISION NOT NULL,
+            signal_strength DOUBLE PRECISION NOT NULL,
+            noise_level DOUBLE PRECISION NOT NULL,
+            battery_level DOUBLE PRECISION NOT NULL,
+            gestures_count INTEGER NOT NULL
         );
         """
     )
@@ -193,21 +204,31 @@ def seed_telemetry_data() -> None:
     now = datetime.utcnow()
     events = []
     for prosthesis_id, in prosthesis_ids:
+        # Simulate battery draining over 24 hours
+        battery_start = random.uniform(85.0, 100.0)
         for offset in range(0, 24):
+            battery = max(5.0, battery_start - offset * random.uniform(1.5, 3.5))
             events.append(
                 (
                     str(uuid.uuid4()),
                     str(prosthesis_id),
                     now - timedelta(hours=offset),
-                    random.uniform(20.0, 45.0),
-                    random.uniform(0.8, 1.6),
+                    random.uniform(40.0, 130.0),   # response_time_ms
+                    random.uniform(0.3, 1.0),       # signal_strength (mV)
+                    random.uniform(0.01, 0.15),     # noise_level (mV)
+                    round(battery, 1),              # battery_level (%)
+                    random.randint(5, 60),          # gestures_count
                 )
             )
 
     telemetry_hook.insert_rows(
         table="sensor_events",
         rows=events,
-        target_fields=["id", "prosthesis_id", "event_time", "temperature", "pressure"],
+        target_fields=[
+            "id", "prosthesis_id", "event_time",
+            "response_time_ms", "signal_strength", "noise_level",
+            "battery_level", "gestures_count",
+        ],
         replace=True,
         replace_index=["id"],
     )
@@ -218,7 +239,9 @@ def load_telemetry_data(**context: Any) -> None:
     data_interval_end = context.get("data_interval_end")
     telemetry_hook = PostgresHook(postgres_conn_id=TELEMETRY_CONN_ID)
     query = (
-        "SELECT id, prosthesis_id, event_time, temperature, pressure "
+        "SELECT id, prosthesis_id, event_time, "
+        "response_time_ms, signal_strength, noise_level, "
+        "battery_level, gestures_count "
         "FROM sensor_events WHERE event_time >= %s AND event_time < %s"
     )
     telemetry_rows = telemetry_hook.get_records(
@@ -229,7 +252,10 @@ def load_telemetry_data(**context: Any) -> None:
     client = get_clickhouse_client()
     if telemetry_rows:
         client.execute(
-            "INSERT INTO reports.telemetry_events (event_id, prosthesis_id, event_time, temperature, pressure) VALUES",
+            "INSERT INTO reports.telemetry_events "
+            "(event_id, prosthesis_id, event_time, "
+            "response_time_ms, signal_strength, noise_level, "
+            "battery_level, gestures_count) VALUES",
             telemetry_rows,
         )
 
@@ -247,8 +273,13 @@ def build_report_mart() -> None:
             customers.customer_email AS customer_email,
             prostheses.device_type AS device_type,
             COUNT(telemetry.event_id) AS total_events,
-            AVG(telemetry.temperature) AS avg_temperature,
-            AVG(telemetry.pressure) AS avg_pressure,
+            AVG(telemetry.response_time_ms) AS avg_response_time_ms,
+            MAX(telemetry.response_time_ms) AS max_response_time_ms,
+            AVG(telemetry.signal_strength) AS avg_signal_strength,
+            AVG(telemetry.noise_level) AS avg_noise_level,
+            AVG(telemetry.battery_level) AS avg_battery_level,
+            MIN(telemetry.battery_level) AS min_battery_level,
+            SUM(telemetry.gestures_count) AS total_gestures,
             MAX(telemetry.event_time) AS last_seen_at
         FROM reports.crm_customers AS customers
         INNER JOIN reports.crm_prostheses AS prostheses
