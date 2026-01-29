@@ -120,7 +120,7 @@ def seed_crm_data() -> None:
     crm_hook.run(
         """
         CREATE TABLE IF NOT EXISTS customers (
-            id UUID PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT NOT NULL
         );
@@ -130,21 +130,21 @@ def seed_crm_data() -> None:
         """
         CREATE TABLE IF NOT EXISTS prostheses (
             id UUID PRIMARY KEY,
-            customer_id UUID NOT NULL REFERENCES customers(id),
+            customer_id TEXT NOT NULL REFERENCES customers(id),
             device_type TEXT NOT NULL
         );
         """
     )
 
-    # IDs must match the fixed Keycloak user IDs in realm-export.json so that
-    # report_mart.user_id equals the JWT "sub" claim for each logged-in user.
+    # Customer IDs are Keycloak usernames so that report_mart.user_id
+    # matches the JWT "preferred_username" claim for each logged-in user.
     keycloak_users = [
-        ("00000000-0000-0000-0000-000000000001", "User One", "user1@example.com"),
-        ("00000000-0000-0000-0000-000000000002", "User Two", "user2@example.com"),
-        ("00000000-0000-0000-0000-000000000003", "Admin One", "admin1@example.com"),
-        ("00000000-0000-0000-0000-000000000004", "Prothetic One", "prothetic1@example.com"),
-        ("00000000-0000-0000-0000-000000000005", "Prothetic Two", "prothetic2@example.com"),
-        ("00000000-0000-0000-0000-000000000006", "Prothetic Three", "prothetic3@example.com"),
+        ("user1", "User One", "user1@example.com"),
+        ("user2", "User Two", "user2@example.com"),
+        ("admin1", "Admin One", "admin1@example.com"),
+        ("prothetic1", "Prothetic One", "prothetic1@example.com"),
+        ("prothetic2", "Prothetic Two", "prothetic2@example.com"),
+        ("prothetic3", "Prothetic Three", "prothetic3@example.com"),
     ]
 
     customer_rows = []
