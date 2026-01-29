@@ -6,9 +6,18 @@ from typing import Any
 import requests
 from clickhouse_driver import Client
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, status
+from fastapi.middleware.cors import CORSMiddleware
 from jose import jwt
 
 app = FastAPI(title="Reports API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 class Settings:
