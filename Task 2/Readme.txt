@@ -3,8 +3,9 @@
 3. В корне папки docker compose up -d
 4. Airflow (ETL)
   4.1 UI: http://localhost:8081
-  4.2 Найдите DAG crm_telemetry_reporting, включите и запустите.
-  4.3 Убедитесь, что все задачи завершились успешно.
+  4.2 Посмотрите лог контейнера Airflow и найдите строку с паролем (обычно вида Password for user 'admin'): docker compose logs airflow
+  4.3 Найдите DAG crm_telemetry_reporting, включите и запустите.
+  4.4 Убедитесь, что все задачи завершились успешно.
 5. Проверить, что витрина заполнена в ClickHouse
   5.1 clickhouse-client --host localhost --query "SELECT count(*) FROM reports.report_mart"
   Ожидается число > 0.
