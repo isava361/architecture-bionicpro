@@ -60,6 +60,8 @@ services:
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW_CONN_CRM_POSTGRES: postgresql://crm_user:crm_password@crm_db:5432/crm
+      AIRFLOW_CONN_TELEMETRY_POSTGRES: postgresql://telemetry_user:telemetry_password@telemetry_db:5432/telemetry
       CLICKHOUSE_HOST: clickhouse
       CLICKHOUSE_PORT: 9000
       CLICKHOUSE_USER: reports_user
@@ -69,6 +71,10 @@ services:
       - ./airflow/dags:/opt/airflow/dags
     ports:
       - "8081:8080"
+    depends_on:
+      - crm_db
+      - telemetry_db
+      - clickhouse
     command: airflow standalone
 
   clickhouse:
