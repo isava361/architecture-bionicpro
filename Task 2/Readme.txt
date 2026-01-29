@@ -1,5 +1,5 @@
 1. Вынесите папки airlow и backend из папки Airflow в корень репозитория
-2. Замените docker-compose.yaml и ReportPage.tsx на файлы из папки airlow
+2. Замените docker-compose.yaml и ReportPage.tsx, а так же файлы из Task 1 на файлы из папки airlow
 3. В корне папки docker compose up -d
 4. Airflow (ETL)
   4.1 UI: http://localhost:8081
