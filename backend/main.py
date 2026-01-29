@@ -163,7 +163,7 @@ async def get_report(
     user: dict[str, Any] = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ) -> dict[str, Any]:
-    user_id = user["sub"]
+    user_id = user["preferred_username"]
     client = get_clickhouse_client(settings)
     max_row = client.execute(
         "SELECT max(last_seen_at) FROM reports.report_mart",

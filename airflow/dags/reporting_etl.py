@@ -120,7 +120,7 @@ def seed_crm_data() -> None:
     crm_hook.run(
         """
         CREATE TABLE IF NOT EXISTS customers (
-            id UUID PRIMARY KEY,
+            id TEXT PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT NOT NULL
         );
@@ -130,22 +130,30 @@ def seed_crm_data() -> None:
         """
         CREATE TABLE IF NOT EXISTS prostheses (
             id UUID PRIMARY KEY,
-            customer_id UUID NOT NULL REFERENCES customers(id),
+            customer_id TEXT NOT NULL REFERENCES customers(id),
             device_type TEXT NOT NULL
         );
         """
     )
 
+    # Customer IDs are Keycloak usernames so that report_mart.user_id
+    # matches the JWT "preferred_username" claim for each logged-in user.
+    keycloak_users = [
+        ("user1", "User One", "user1@example.com"),
+        ("user2", "User Two", "user2@example.com"),
+        ("admin1", "Admin One", "admin1@example.com"),
+        ("prothetic1", "Prothetic One", "prothetic1@example.com"),
+        ("prothetic2", "Prothetic Two", "prothetic2@example.com"),
+        ("prothetic3", "Prothetic Three", "prothetic3@example.com"),
+    ]
+
     customer_rows = []
     prosthesis_rows = []
-    for index in range(1, 6):
-        customer_id = uuid.uuid4()
-        customer_rows.append(
-            (str(customer_id), f"Customer {index}", f"customer{index}@example.com")
-        )
+    for customer_id, name, email in keycloak_users:
+        customer_rows.append((customer_id, name, email))
         for device_index in range(1, 3):
             prosthesis_rows.append(
-                (str(uuid.uuid4()), str(customer_id), f"Model-{device_index}")
+                (str(uuid.uuid4()), customer_id, f"Model-{device_index}")
             )
 
     crm_hook.insert_rows(
