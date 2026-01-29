@@ -6,21 +6,7 @@
   4.2 Посмотрите лог контейнера Airflow и найдите строку с паролем (обычно вида Password for user 'admin'): docker compose logs airflow
   4.3 Найдите DAG crm_telemetry_reporting, включите и запустите.
   4.4 Убедитесь, что все задачи завершились успешно.
-5. Проверить, что витрина заполнена в ClickHouse
-  5.1 clickhouse-client --host localhost --query "SELECT count(*) FROM reports.report_mart"
-  Ожидается число > 0.
-6. Проверить API /reports
-  6.1 Получите токен из Keycloak (realm reports-realm, client reports-api).
-  6.2 Запрос:
-    curl -H "Authorization: Bearer <TOKEN>" \
-         "http://localhost:8000/reports?start=2024-01-01&end=2024-12-31"
-    Ожидается JSON с user_id, start, end, report.
-
-  6.3 Проверки доступа:
-    Без токена: должен быть 401.
-    С токеном другого пользователя: данные будут только по sub токена (фильтрация по user_id).
-
-7. Проверить UI
-  7.1 Откройте http://localhost:3000
-  7.2 Войдите через Keycloak
-  7.3 Выберите даты и нажмите Download Report — таблица должна заполниться.
+5. Проверить UI
+  5.1 Откройте http://localhost:3000
+  5.2 Войдите через Keycloak
+  5.3 Выберите даты и нажмите Download Report — таблица должна заполниться.
