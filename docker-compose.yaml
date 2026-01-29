@@ -78,6 +78,10 @@ services:
       - "9000:9000"
     volumes:
       - ./clickhouse-data:/var/lib/clickhouse
+    environment:
+      CLICKHOUSE_USER: reports_user
+      CLICKHOUSE_PASSWORD: reports_password
+      CLICKHOUSE_DB: reports
 
   reports_api:
     build:
@@ -86,6 +90,8 @@ services:
     environment:
       CLICKHOUSE_HOST: clickhouse
       CLICKHOUSE_PORT: 9000
+      CLICKHOUSE_USER: reports_user
+      CLICKHOUSE_PASSWORD: reports_password
       CLICKHOUSE_DB: reports
       KEYCLOAK_URL: http://keycloak:8080
       KEYCLOAK_REALM: reports-realm
